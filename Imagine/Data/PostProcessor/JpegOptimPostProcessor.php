@@ -33,9 +33,10 @@ class JpegOptimPostProcessor implements PostProcessorInterface
      */
     function process(Response $response)
     {
-        $type = $response->headers->get('Content-Type');
-        if ('image/jpeg' != $type) {
-            throw new \RuntimeException(sprintf('Could not apply jpegoptim post-processor to "%s" content type', $type));
+        $type = strtolower($response->headers->get('Content-Type'));
+        if (!in_array($type, array('image/jpeg', 'image/jpg'))) {
+            return $response;
+//            throw new \RuntimeException(sprintf('Could not apply jpegoptim post-processor to "%s" content type', $type));
         }
 
         $pb = new ProcessBuilder(array($this->jpegoptimBin));
