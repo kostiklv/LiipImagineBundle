@@ -30,6 +30,16 @@ class LoadersCompilerPass implements CompilerPassInterface
             }
         }
 
+        $tags = $container->findTaggedServiceIds('liip_imagine.data.post_processor');
+
+        if (count($tags) > 0 && $container->hasDefinition('liip_imagine.filter.manager')) {
+            $manager = $container->getDefinition('liip_imagine.filter.manager');
+
+            foreach ($tags as $id => $tag) {
+                $manager->addMethodCall('addPostProcessor', array($tag[0]['post_processor'], new Reference($id)));
+            }
+        }
+
         $tags = $container->findTaggedServiceIds('liip_imagine.cache.resolver');
 
         if (count($tags) > 0 && $container->hasDefinition('liip_imagine.cache.manager')) {

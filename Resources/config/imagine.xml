@@ -48,6 +48,9 @@
         <parameter key="liip_imagine.cache.resolver.web_path.class">Liip\ImagineBundle\Imagine\Cache\Resolver\WebPathResolver</parameter>
         <parameter key="liip_imagine.cache.resolver.no_cache.class">Liip\ImagineBundle\Imagine\Cache\Resolver\NoCacheResolver</parameter>
 
+        <!-- Post processors' classes -->
+        <parameter key="liip_imagine.data.post_processor.jpegoptim.class">Liip\ImagineBundle\Imagine\Data\PostProcessor\JpegOptimPostProcessor</parameter>
+
     </parameters>
 
     <services>
@@ -153,6 +156,11 @@
         <service id="liip_imagine.cache.resolver.no_cache" class="%liip_imagine.cache.resolver.no_cache.class%">
             <tag name="liip_imagine.cache.resolver" resolver="no_cache" />
             <argument type="service" id="filesystem" />
+        </service>
+
+        <!-- Post processors -->
+        <service id="liip_imagine.data.post_processor.jpegoptim" class="%liip_imagine.data.post_processor.jpegoptim.class%">
+            <tag name="liip_imagine.data.post_processor" post_processor="jpegoptim" />
         </service>
 
     </services>

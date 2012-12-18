@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpFoundation\Response;
 
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
+use Liip\ImagineBundle\Imagine\Data\PostProcessor\PostProcessorInterface;
 
 class FilterManager
 {
@@ -18,6 +19,11 @@ class FilterManager
      * @var array
      */
     private $loaders = array();
+
+    /**
+     * @var array
+     */
+    private $postProcessors = array();
 
     /**
      * @param FilterConfiguration $filterConfig
@@ -39,6 +45,15 @@ class FilterManager
     }
 
     /**
+     * @param                        $name
+     * @param PostProcessorInterface $postProcessor
+     */
+    public function addPostProcessor($name, PostProcessorInterface $postProcessor)
+    {
+        $this->postProcessors[$name] = $postProcessor;
+    }
+
+    /**
      * @return FilterConfiguration
      */
     public function getFilterConfiguration()
@@ -54,9 +69,9 @@ class FilterManager
      *
      * @return Response
      */
-    public function get(Request $request, $filter, $image, $localPath)
+    public function get(Request $request, $filterSet, $image, $localPath)
     {
-        $config = $this->filterConfig->get($filter);
+        $config = $this->filterConfig->get($filterSet);
 
         foreach ($config['filters'] as $filter => $options) {
             if (!isset($this->loaders[$filter])) {
@@ -83,6 +98,17 @@ class FilterManager
             $contentType = 'image/'.$format;
         }
 
-        return new Response($image, 200, array('Content-Type' => $contentType));
+        $response = new Response($image, 200, array('Content-Type' => $contentType));
+
+        foreach ($config['post_processors'] as $postProcessorName) {
+            if (!isset($this->postProcessors[$postProcessorName])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Could not find post processor "%s" while processing filter set "%s"', $postProcessorName, $filterSet
+                ));
+            }
+            $response = $this->postProcessors[$postProcessorName]->process($response);
+        }
+
+        return $response;
     }
 }
