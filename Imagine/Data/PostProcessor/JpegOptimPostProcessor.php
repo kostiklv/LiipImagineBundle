@@ -45,6 +45,9 @@ class JpegOptimPostProcessor implements PostProcessorInterface
             $pb->add('--strip-all');
 //        }
 
+        $pb->add('-o');
+        $pb->add('--all-progressive');
+
 //        if ($this->max) {
 //            $pb->add('--max='.$this->max);
 //        }
