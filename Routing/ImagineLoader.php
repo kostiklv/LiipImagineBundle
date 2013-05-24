@@ -2,10 +2,9 @@
 
 namespace Liip\ImagineBundle\Routing;
 
-use Symfony\Component\Routing\Route;
-
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Config\Loader\Loader;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class ImagineLoader extends Loader
 {
@@ -46,10 +45,25 @@ class ImagineLoader extends Loader
                     'filter' => $filter,
                 );
 
+                $routeRequirements = $requirements;
+                $routeDefaults = $defaults;
+                $routeOptions = array();
+
+                if (isset($config['route']['requirements'])) {
+                    $routeRequirements = array_merge($routeRequirements, $config['route']['requirements']);
+                }
+                if (isset($config['route']['defaults'])) {
+                    $routeDefaults = array_merge($routeDefaults, $config['route']['defaults']);
+                }
+                if (isset($config['route']['options'])) {
+                    $routeOptions = array_merge($routeOptions, $config['route']['options']);
+                }
+
                 $routes->add('_imagine_'.$filter, new Route(
                     $pattern.'/{path}',
-                    $defaults,
-                    $requirements
+                    $routeDefaults,
+                    $routeRequirements,
+                    $routeOptions
                 ));
             }
         }

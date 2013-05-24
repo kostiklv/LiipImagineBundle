@@ -2,14 +2,13 @@
 
 namespace Liip\ImagineBundle\Imagine\Data\Loader;
 
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
 use Imagine\Image\ImagineInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FileSystemLoader implements LoaderInterface
 {
     /**
-     * @var Imagine\Image\ImagineInterface
+     * @var ImagineInterface
      */
     protected $imagine;
 
@@ -24,13 +23,13 @@ class FileSystemLoader implements LoaderInterface
     protected $rootPath;
 
     /**
-     * Constructs
+     * Constructor.
      *
      * @param ImagineInterface  $imagine
      * @param array             $formats
      * @param string            $rootPath
      */
-    public function __construct(ImagineInterface $imagine, $formats, $rootPath)
+    public function __construct(ImagineInterface $imagine, array $formats, $rootPath)
     {
         $this->imagine = $imagine;
         $this->formats = $formats;
@@ -38,11 +37,12 @@ class FileSystemLoader implements LoaderInterface
     }
 
     /**
-     * Get the file info for the given path
+     * Get the file info for the given path.
      *
-     * This can optionally be used to generate the given file
+     * This can optionally be used to generate the given file.
      *
-     * @param $absolutePath
+     * @param string $absolutePath
+     *
      * @return array
      */
     protected function getFileInfo($absolutePath)
@@ -51,9 +51,7 @@ class FileSystemLoader implements LoaderInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return Imagine\Image\ImageInterface
+     * {@inheritDoc}
      */
     public function find($path)
     {
@@ -63,20 +61,25 @@ class FileSystemLoader implements LoaderInterface
 
         $file = $this->rootPath.'/'.ltrim($path, '/');
         $info = $this->getFileInfo($file);
-        $absolutePath = $info['dirname'].'/'.$info['basename'];
+        $absolutePath = $info['dirname'].DIRECTORY_SEPARATOR.$info['basename'];
 
-        $name = $info['dirname'].'/'.$info['filename'];
-        $targetFormat = empty($this->formats) || in_array($info['extension'], $this->formats)
-            ? $info['extension'] : null;
+        $name = $info['dirname'].DIRECTORY_SEPARATOR.$info['filename'];
+
+        $targetFormat = null;
+        // set a format if an extension is found and is allowed
+        if (isset($info['extension'])
+            && (empty($this->formats) || in_array($info['extension'], $this->formats))
+        ) {
+            $targetFormat = $info['extension'];
+        }
 
         if (empty($targetFormat) || !file_exists($absolutePath)) {
             // attempt to determine path and format
             $absolutePath = null;
             foreach ($this->formats as $format) {
-                if ($targetFormat !== $format
-                    && file_exists($name.'.'.$format)
-                ) {
+                if ($targetFormat !== $format && file_exists($name.'.'.$format)) {
                     $absolutePath = $name.'.'.$format;
+
                     break;
                 }
             }

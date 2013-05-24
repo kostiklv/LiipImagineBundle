@@ -1,24 +1,20 @@
 <?php
 
-/*
- * This file is part of the FOSUserBundle package.
- *
- * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Liip\ImagineBundle\Tests\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Kernel;
-use Liip\ImagineBundle\LiipImagineBundle;
+use Liip\ImagineBundle\Tests\AbstractTest;
 use Liip\ImagineBundle\DependencyInjection\LiipImagineExtension;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\DependencyInjection\Reference;
 
-class LiipImagineExtensionTest extends \PHPUnit_Framework_TestCase
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Yaml\Parser;
+
+/**
+ * @covers Liip\ImagineBundle\DependencyInjection\Configuration
+ * @covers Liip\ImagineBundle\DependencyInjection\LiipImagineExtension
+ */
+class LiipImagineExtensionTest extends AbstractTest
 {
     /**
      * @var \Symfony\Component\DependencyInjection\ContainerBuilder
@@ -70,6 +66,17 @@ class LiipImagineExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->containerBuilder->hasDefinition('liip_imagine.cache.clearer'));
     }
 
+    public function testCustomRouteRequirements()
+    {
+        $this->createFullConfiguration();
+        $param = $this->containerBuilder->getParameter('liip_imagine.filter_sets');
+
+        $this->assertTrue(isset($param['small']['filters']['route']['requirements']));
+
+        $variable1 = $param['small']['filters']['route']['requirements']['variable1'];
+        $this->assertEquals('value1', $variable1, sprintf('%s parameter is correct', $variable1));
+    }
+
     /**
      * @return ContainerBuilder
      */
@@ -105,6 +112,8 @@ filter_sets:
     small:
         filters:
             thumbnail: { size: [100, ~], mode: inset }
+            route:
+                requirements: { variable1: 'value1' }
         quality: 80
     medium_small_cropped:
         filters:

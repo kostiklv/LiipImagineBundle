@@ -2,8 +2,8 @@
 
 namespace Liip\ImagineBundle\DependencyInjection;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder,
-    Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
@@ -54,6 +54,14 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('post_processors')
                                 ->defaultValue(array())
                                 ->prototype('scalar')->end()
+                            ->end()
+                            ->arrayNode('route')
+                                ->defaultValue(array())
+                                ->useAttributeAsKey('name')
+                                ->prototype('array')
+                                    ->useAttributeAsKey('name')
+                                    ->prototype('variable')->end()
+                                ->end()
                             ->end()
                             ->arrayNode('filters')
                                 ->useAttributeAsKey('name')
